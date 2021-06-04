@@ -17,22 +17,19 @@
  */
 package com.aidinhut.simpletextcrypt;
 
-import android.util.Base64;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -44,6 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class Crypter {
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static String encrypt(String password, String input)
             throws UnsupportedEncodingException,
             GeneralSecurityException {
@@ -53,7 +51,7 @@ public class Crypter {
         // to be secret.
         // See: https://stackoverflow.com/questions/3436864/sending-iv-along-with-cipher-text-safe
 
-        String ivKey = getRandomIV();
+        String ivKey = getRandomIV58();
         IvParameterSpec iv = new IvParameterSpec(ivKey.getBytes("UTF-8"));
 
         SecretKey secretKey = deriveKey(password, ivKey);
@@ -95,7 +93,23 @@ public class Crypter {
         for (int i = 0; i < 16; ++i) {
             char ch = (char)(random.nextInt(96) + 32);
             builder.append(ch);
-            System.out.println(ch);
+
+        }
+
+        return builder.toString();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private static String getRandomIV58()
+    {
+        Random random = new Random();
+        StringBuilder builder = new StringBuilder();
+        char[] ALPHABET = Base58.getAlphabet();
+
+        for (int i = 0; i < 16; ++i) {
+            char ch = ALPHABET[ThreadLocalRandom.current().nextInt(0, ALPHABET.length)];
+            builder.append(ch);
+
         }
 
         return builder.toString();

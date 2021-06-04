@@ -130,6 +130,11 @@ public class Base58 {
         return copyOfRange(temp, j - zeroCount, temp.length);
     }
 
+    public static char[] getAlphabet()
+    {
+        return ALPHABET;
+    }
+
     private static byte divmod58(byte[] number, int startAt) {
         int remainder = 0;
         for (int i = startAt; i < number.length; i++) {
