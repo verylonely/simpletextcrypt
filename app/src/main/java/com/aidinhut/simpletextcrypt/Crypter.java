@@ -63,7 +63,7 @@ public class Crypter {
 
         byte[] encrypted = cipher.doFinal(input.getBytes());
 
-        return ivKey + Base64.encodeToString(encrypted, Base64.DEFAULT);
+        return ivKey + "❤" + Base58.encode(encrypted);
     }
 
     public static String decrypt(String password, String input)
@@ -71,7 +71,7 @@ public class Crypter {
             GeneralSecurityException {
         // First 16 chars is the random IV.
         String ivKey = input.substring(0, 16);
-        String encryptedMessage = input.substring(16);
+        String encryptedMessage = input.substring(17);
 
         IvParameterSpec iv = new IvParameterSpec(ivKey.getBytes("UTF-8"));
 
@@ -80,7 +80,7 @@ public class Crypter {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
         cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
 
-        byte[] original = cipher.doFinal(Base64.decode(encryptedMessage, Base64.DEFAULT));
+        byte[] original = cipher.doFinal(Base58.decode(encryptedMessage));
 
         return new String(original);
     }
@@ -93,7 +93,9 @@ public class Crypter {
         StringBuilder builder = new StringBuilder();
 
         for (int i = 0; i < 16; ++i) {
-            builder.append((char)(random.nextInt(96) + 32));
+            char ch = (char)(random.nextInt(96) + 32);
+            builder.append(ch);
+            System.out.println(ch);
         }
 
         return builder.toString();
